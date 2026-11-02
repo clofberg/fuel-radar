@@ -205,7 +205,7 @@ en:{
  ios:"On iPhone: share this page in Safari → “Add to Home Screen” to install the app.",
  android:"On Android: tap ⋮ in Chrome → “Install app” to install it on your home screen.",
  cheapest_tag:"★ cheapest",perfill:"extra in total (incl. detour)",savtip:"Extra vs the cheapest station, counting the fill AND the fuel to drive there and back.",
-gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (30) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",aauto:"Auto-checking Google prices…",adone:"✓ auto-check done: {n} prices compared ({m} differ)",anone:"auto-check: no Google prices available in this area",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
+gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (100) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",aauto:"Auto-checking Google prices…",adone:"✓ auto-check done: {n} prices compared ({m} differ)",anone:"auto-check: no Google prices available in this area",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
 desk:"Installable on iPhone (Safari → Share → Add to Home Screen) and Android (Chrome → ⋮ → Install app)."
 },
 fr:{
@@ -235,7 +235,7 @@ fr:{
  ios:"Sur iPhone : partagez cette page dans Safari → « Sur l'écran d'accueil » pour installer l'app.",
  android:"Sur Android : menu ⋮ dans Chrome → « Installer l'application ».",
  cheapest_tag:"★ le moins cher",perfill:"en plus au total (détour inclus)",savtip:"Surcoût vs la station la moins chère, plein ET trajet compris.",
-gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (30) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",aauto:"Vérification automatique des prix Google…",adone:"✓ vérification terminée : {n} prix comparés ({m} différents)",anone:"vérification auto : pas de prix Google dans cette zone",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
+gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (100) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",aauto:"Vérification automatique des prix Google…",adone:"✓ vérification terminée : {n} prix comparés ({m} différents)",anone:"vérification auto : pas de prix Google dans cette zone",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
 desk:"Installable sur iPhone (Safari → Partager → Sur l'écran d'accueil) et Android (Chrome → ⋮ → Installer l'application)."
 },
 nl:{
@@ -265,7 +265,7 @@ nl:{
  ios:"Op iPhone: deel deze pagina in Safari → “Zet op beginscherm” om de app te installeren.",
  android:"Op Android: menu ⋮ in Chrome → “App installeren” om het op je beginscherm te zetten.",
  cheapest_tag:"★ goedkoopste",perfill:"extra in totaal (incl. omrij)",savtip:"Extra vs het goedkoopste station, tankbeurt EN rit erheen meegerekend.",
-gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (30) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",aauto:"Google-prijzen automatisch controleren…",adone:"✓ controle klaar: {n} prijzen vergeleken ({m} verschillend)",anone:"autocontrole: geen Google-prijzen in deze zone",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
+gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (100) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",aauto:"Google-prijzen automatisch controleren…",adone:"✓ controle klaar: {n} prijzen vergeleken ({m} verschillend)",anone:"autocontrole: geen Google-prijzen in deze zone",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
 desk:"Installeerbaar op iPhone (Safari → Delen → Zet op beginscherm) en Android (Chrome → ⋮ → App installeren)."
 }};
 let lang=(()=>{const s=localStorage.getItem("fuelradar.lang");if(s&&T[s])return s;
@@ -378,13 +378,13 @@ const GTYPES={EURO95:"SP95_E10",EURO98:"SP98",DIESEL:"DIESEL",AUTOGAS:"LPG",CNG:
 let gcheck=JSON.parse(localStorage.getItem("fuelradar.gchk")||"{}");
 function gQuota(){
   const d=new Date().toISOString().slice(0,10);
-  const c=JSON.parse(localStorage.getItem("fuelradar.gcq")||'{"d":"","n":0}');
+  const c=JSON.parse(localStorage.getItem("fuelradar.gcq.v2")||'{"d":"","n":0}');
   if(c.d!==d){c.d=d;c.n=0}
   return c;
 }
 async function gVerify(s){
   const c=gQuota();
-  if(c.n>=30){setStatus(t("gday"),"err");return;}
+  if(c.n>=100){setStatus(t("gday"),"err");return;}
   const want=GTYPES[fuel];
   if(!want)return;
   const parts=(s.addr||"").split(",").map(x=>x.trim()).filter(Boolean);
@@ -437,7 +437,7 @@ async function autoCheck(){
     .filter(s=>!(gcheck[s.id]&&gcheck[s.id].d===today&&gcheck[s.id].f===fuel));
   if(!cands.length){render();return;}
   const c=gQuota();
-  if(c.n+cands.length>30)cands.length=Math.max(0,30-c.n);
+  if(c.n+cands.length>100)cands.length=Math.max(0,100-c.n);
   if(!cands.length){render();return;}
   c.n+=cands.length;localStorage.setItem("fuelradar.gcq",JSON.stringify(c));
   setStatus('<span class="spin"></span>'+esc(t("aauto")));
