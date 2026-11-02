@@ -71,6 +71,10 @@ input:focus,select:focus{border-color:var(--teal);outline:none}
 .st .meta{font-size:11px;color:var(--muted);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap}
 .st .meta .d{color:var(--text)}
 .st .meta .gline{font-weight:700;color:var(--teal)}
+.st .price .sep{color:var(--muted);margin:0 2px;font-weight:400}
+.st .price .gval{color:var(--amber)}
+.st .price.dual{font-size:16px;letter-spacing:-.5px}
+.st .net .gsrc{color:var(--amber);font-weight:500}
 .st .meta .sav{font-weight:700}
 /* bigger chip for the flagship brands */
 .logo-img,.logo-fb{width:44px;height:32px;object-fit:contain;background:#fff;border-radius:9px;padding:3px;flex-shrink:0}
@@ -142,6 +146,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:v
   <div class="chips" id="fuelChips"><span class="lab">Fuel</span></div>
   <div class="chips" id="radChips"><span class="lab">Radius</span></div>
   <div class="chips" id="brandRow"><span class="lab">Brand</span><select id="brandSel" aria-label="Filter by brand"><option value="">All brands</option></select></div>
+  <div class="chips" id="srcChips"><span class="lab" id="srcLab">Price source</span></div>
   <div class="sortrow">
     Sort
     <select id="sortBy" aria-label="Sort stations">
@@ -205,7 +210,7 @@ en:{
  ios:"On iPhone: share this page in Safari → “Add to Home Screen” to install the app.",
  android:"On Android: tap ⋮ in Chrome → “Install app” to install it on your home screen.",
  cheapest_tag:"★ cheapest",perfill:"extra in total (incl. detour)",savtip:"Extra vs the cheapest station, counting the fill AND the fuel to drive there and back.",
-gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (100) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",aauto:"Auto-checking Google prices…",adone:"✓ auto-check done: {n} prices compared ({m} differ)",anone:"auto-check: no Google prices available in this area",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
+gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (100) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",aauto:"Auto-checking Google prices…",adone:"✓ auto-check done: {n} prices compared ({m} differ)",anone:"auto-check: no Google prices available in this area",psrc:"Price source",psrcA:"ANWB",psrcG:"Google",psrcTip:"Which source is used for net cost, ranking and savings when the two disagree. Stations not yet checked by Google always use ANWB.",anwbw:"ANWB",gglw:"Google",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
 desk:"Installable on iPhone (Safari → Share → Add to Home Screen) and Android (Chrome → ⋮ → Install app)."
 },
 fr:{
@@ -235,7 +240,7 @@ fr:{
  ios:"Sur iPhone : partagez cette page dans Safari → « Sur l'écran d'accueil » pour installer l'app.",
  android:"Sur Android : menu ⋮ dans Chrome → « Installer l'application ».",
  cheapest_tag:"★ le moins cher",perfill:"en plus au total (détour inclus)",savtip:"Surcoût vs la station la moins chère, plein ET trajet compris.",
-gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (100) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",aauto:"Vérification automatique des prix Google…",adone:"✓ vérification terminée : {n} prix comparés ({m} différents)",anone:"vérification auto : pas de prix Google dans cette zone",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
+gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (100) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",aauto:"Vérification automatique des prix Google…",adone:"✓ vérification terminée : {n} prix comparés ({m} différents)",anone:"vérification auto : pas de prix Google dans cette zone",psrc:"Source du prix",psrcA:"ANWB",psrcG:"Google",psrcTip:"Quelle source sert aux calculs (coût net, classement, économies) quand les deux diffèrent. Les stations pas encore vérifiées par Google utilisent toujours ANWB.",anwbw:"ANWB",gglw:"Google",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
 desk:"Installable sur iPhone (Safari → Partager → Sur l'écran d'accueil) et Android (Chrome → ⋮ → Installer l'application)."
 },
 nl:{
@@ -265,7 +270,7 @@ nl:{
  ios:"Op iPhone: deel deze pagina in Safari → “Zet op beginscherm” om de app te installeren.",
  android:"Op Android: menu ⋮ in Chrome → “App installeren” om het op je beginscherm te zetten.",
  cheapest_tag:"★ goedkoopste",perfill:"extra in totaal (incl. omrij)",savtip:"Extra vs het goedkoopste station, tankbeurt EN rit erheen meegerekend.",
-gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (100) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",aauto:"Google-prijzen automatisch controleren…",adone:"✓ controle klaar: {n} prijzen vergeleken ({m} verschillend)",anone:"autocontrole: geen Google-prijzen in deze zone",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
+gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (100) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",aauto:"Google-prijzen automatisch controleren…",adone:"✓ controle klaar: {n} prijzen vergeleken ({m} verschillend)",anone:"autocontrole: geen Google-prijzen in deze zone",psrc:"Prijbron",psrcA:"ANWB",psrcG:"Google",psrcTip:"Welke bron gebruikt wordt voor netto, rangschikking en besparingen als ze verschillen. Stations nog niet gecontroleerd door Google gebruiken altijd ANWB.",anwbw:"ANWB",gglw:"Google",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
 desk:"Installeerbaar op iPhone (Safari → Delen → Zet op beginscherm) en Android (Chrome → ⋮ → App installeren)."
 }};
 let lang=(()=>{const s=localStorage.getItem("fuelradar.lang");if(s&&T[s])return s;
@@ -280,6 +285,7 @@ const money=v=>lang==="en"?"€"+nf2(v):nf2(v)+" €";
 const fuelName=id=>id==="DIESEL_SPECIAL"?t("premium"):id==="EURO95"?"Euro 95":id==="EURO98"?"Super 98":id==="DIESEL"?"Diesel":id==="AUTOGAS"?"LPG":"CNG";
 
 const ROAD=1.3; // straight-line km -> realistic road km
+let psrc=localStorage.getItem("fuelradar.psrc")||"anwb";
 let center=null, radius=10, fuel="EURO95", sortBy="smart", brand="", stations=[], markers=[], map=null, busying=false;
 
 /* ---------- transport: direct first, then CORS relays ---------- */
@@ -364,7 +370,7 @@ async function fetchRoad(){
 
 /* ---------- scoring ---------- */
 function score(s){
-  const p=s.prices[fuel];if(p==null)return Infinity;
+  const E=effP(s);const p=E.p;if(p==null)return Infinity;
   if(sortBy==="price")return p;
   if(sortBy==="dist")return s.dist;
   const cons=+$("#cons").value||6.5, fl=+$("#fill").value||40;
@@ -482,6 +488,19 @@ async function autoCheck(){
   setStatus(found?subst(t("adone"),{n:found,m:diff}):t("anone"),found?"ok":"");
   render();
 }
+/* ---------- source-aware price ---------- */
+function gvOf(s){
+  const today=new Date().toISOString().slice(0,10);
+  const g=gcheck[s.id];
+  return (g&&g.d===today&&g.f===fuel)?g:null;
+}
+function effP(s){
+  const a=s.prices[fuel];
+  const g=gvOf(s);
+  if(psrc==="google"&&g)return {p:g.v,src:"google",other:a};
+  return {p:a,src:"anwb",other:g?g.v:null};
+}
+
 /* ---------- render ---------- */
 function colorize(vals,p){const lo=Math.min(...vals),hi=Math.max(...vals);
   if(hi===lo)return "cheap";const f=(p-lo)/(hi-lo);return f<0.4?"cheap":f>0.75?"dear":"";}
@@ -491,7 +510,7 @@ function render(){
     .filter(s=>!brand||s.name.toUpperCase()===brand)
     .sort((a,b)=>score(a)-score(b));
   const vals=rows.map(r=>r.prices[fuel]);
-  const netOf=s=>{const p=s.prices[fuel];const detour=2*roadKm(s)*cons/100*p;return {fill:fl*p,detour,net:fl*p+detour};};
+  const netOf=s=>{const E=effP(s);const p=E.p;const detour=2*roadKm(s)*cons/100*p;return {fill:fl*p,detour,net:fl*p+detour,eff:E};};
   if(!rows.length){
     $("#pick").hidden=true;
     $("#list").innerHTML=`<div class="empty"><b>${esc(subst(t("empty1"),{fuel:fuelName(fuel),r:radius}))}</b><br>${esc(t("empty2"))}</div>`;
@@ -510,8 +529,9 @@ function render(){
     const n=netOf(s);
     const delta=n.net-minNet;
     const today=new Date().toISOString().slice(0,10);
-    const gv=(gcheck[s.id]&&gcheck[s.id].d===today&&gcheck[s.id].f===fuel)?gcheck[s.id]:null;
-    const gline=gv?`<span class="gline" title="Google Places · ${esc(new Date(gv.ts).toLocaleString(loc()))}">Google ${nf3(gv.v)} (${gv.v>s.prices[fuel]?"+":""}${((gv.v-s.prices[fuel])*100).toFixed(1)} c)</span>`:"";
+    const gv=gvOf(s);
+    const other=E.eff.other;
+    const gline=(gv&&other!=null&&Math.abs(other-E.eff.p)>0.004)?`<span class="gline" title="${psrc==="google"?"ANWB":"Google Places"} · ${esc(new Date(gv.ts).toLocaleString(loc()))}">${esc(psrc==="google"?t("anwbw"):t("gglw"))} ${nf3(other)} (${other>E.eff.p?"+":""}${((other-E.eff.p)*100).toFixed(1)} c)</span>`:"";
     const sav=delta<0.005
       ?`<span class="sav cheap">${esc(t("cheapest_tag"))}</span>`
       :`<span class="sav" title="${esc(t("savtip"))}">+${esc(money(delta))} ${esc(t("perfill"))}</span>`;
@@ -519,8 +539,8 @@ function render(){
       <div class="rank">${i+1}</div>${brandLogo(s.name)}
       <div class="mid"><div class="name">${esc(s.name)}</div><div class="addr">${esc(s.addr)}</div>
         <div class="meta"><span class="d">${esc(subst(t("away"),{d:roadKm(s).toFixed(1)}))}</span>${sav}${gline}</div></div>
-      <div class="right"><div class="price ${colorize(vals,s.prices[fuel])}">${nf3(s.prices[fuel])}</div>
-        <div class="net" title="${esc(subst(t("nettip"),{f:money(n.fill),d:money(n.detour)}))}">${esc(t("netword"))} ${money(n.net)}</div>
+      <div class="right"><div class="price ${colorize(vals,E.eff.p)}${other!=null&&Math.abs(other-E.eff.p)>0.004?" dual":""}">${nf3(E.eff.p)}${other!=null&&Math.abs(other-E.eff.p)>0.004?`<span class="sep">–</span><span class="gval">${nf3(other)}</span>`:""}</div>
+        <div class="net" title="${esc(subst(t("nettip"),{f:money(n.fill),d:money(n.detour)}))}">${esc(t("netword"))} ${money(n.net)}${gv&&Math.abs(gv.v-s.prices[fuel])>0.004?` <span class="gsrc">(ANWB–Google)</span>`:""}</div>
         <a class="go" data-g="${s.id}" role="button" tabindex="0">${esc(gv?t("gverify").replace("✓","↻"):t("gverify"))}</a>
         <a class="go" target="_blank" rel="noopener" href="${gmaps(s)}">${esc(t("maplink"))}</a></div></div>`;}).join("");
   drawMap(rows,vals);
@@ -594,6 +614,7 @@ $("#q").addEventListener("keydown",e=>{if(e.key==="Enter")searchPlace();});
 function buildChips(){
   $("#fuelChips").innerHTML='<span class="lab">'+esc(t("fuel"))+'</span>'+FUELS.map(id=>
     `<button class="chip" data-f="${id}" aria-pressed="${id===fuel}">${esc(fuelName(id))}</button>`).join("");
+  $("#srcChips").innerHTML='<span class="lab">'+esc(t("psrc"))+'</span>'+[["anwb","ANWB"],["google","Google"]].map(function(it){return '<button class="chip" data-s="'+it[0]+'" aria-pressed="'+(psrc===it[0])+'">'+esc(it[1])+'</button>';}).join("");
   $("#radChips").innerHTML='<span class="lab">'+esc(t("radius"))+'</span>'+[2,5,10,25].map(r=>
     `<button class="chip" data-r="${r}" aria-pressed="${r===radius}">${r} km</button>`).join("");
 }
@@ -625,7 +646,8 @@ document.addEventListener("change",e=>{
   if(e.target.id==="sortBy"){sortBy=e.target.value;render();}
 });
 document.addEventListener("click",e=>{
-  const f=e.target.closest("#fuelChips .chip"),r=e.target.closest("#radChips .chip"),l=e.target.closest(".lchip");
+  const f=e.target.closest("#fuelChips .chip"),r=e.target.closest("#radChips .chip"),l=e.target.closest(".lchip"),sc=e.target.closest("#srcChips .chip");
+  if(sc){psrc=sc.dataset.s;localStorage.setItem("fuelradar.psrc",psrc);buildChips();render();return;}
   if(f){fuel=f.dataset.f;buildChips();render();}
   if(r){radius=+r.dataset.r;buildChips();load();}
   const gbtn=e.target.closest("[data-g]");
