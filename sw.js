@@ -1,5 +1,5 @@
 /* Fuel Radar service worker — offline shell + last-known prices */
-const CACHE="fuelradar-v14";
+const CACHE="fuelradar-v15";
 const SHELL=["./"];
 self.addEventListener("install",e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));

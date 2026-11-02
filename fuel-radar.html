@@ -530,8 +530,8 @@ function render(){
     const delta=n.net-minNet;
     const today=new Date().toISOString().slice(0,10);
     const gv=gvOf(s);
-    const other=E.eff.other;
-    const gline=(gv&&other!=null&&Math.abs(other-E.eff.p)>0.004)?`<span class="gline" title="${psrc==="google"?"ANWB":"Google Places"} · ${esc(new Date(gv.ts).toLocaleString(loc()))}">${esc(psrc==="google"?t("anwbw"):t("gglw"))} ${nf3(other)} (${other>E.eff.p?"+":""}${((other-E.eff.p)*100).toFixed(1)} c)</span>`:"";
+    const other=n.eff.other;
+    const gline=(gv&&other!=null&&Math.abs(other-n.eff.p)>0.004)?`<span class="gline" title="${psrc==="google"?"ANWB":"Google Places"} · ${esc(new Date(gv.ts).toLocaleString(loc()))}">${esc(psrc==="google"?t("anwbw"):t("gglw"))} ${nf3(other)} (${other>n.eff.p?"+":""}${((other-n.eff.p)*100).toFixed(1)} c)</span>`:"";
     const sav=delta<0.005
       ?`<span class="sav cheap">${esc(t("cheapest_tag"))}</span>`
       :`<span class="sav" title="${esc(t("savtip"))}">+${esc(money(delta))} ${esc(t("perfill"))}</span>`;
@@ -539,7 +539,7 @@ function render(){
       <div class="rank">${i+1}</div>${brandLogo(s.name)}
       <div class="mid"><div class="name">${esc(s.name)}</div><div class="addr">${esc(s.addr)}</div>
         <div class="meta"><span class="d">${esc(subst(t("away"),{d:roadKm(s).toFixed(1)}))}</span>${sav}${gline}</div></div>
-      <div class="right"><div class="price ${colorize(vals,E.eff.p)}${other!=null&&Math.abs(other-E.eff.p)>0.004?" dual":""}">${nf3(E.eff.p)}${other!=null&&Math.abs(other-E.eff.p)>0.004?`<span class="sep">–</span><span class="gval">${nf3(other)}</span>`:""}</div>
+      <div class="right"><div class="price ${colorize(vals,n.eff.p)}${other!=null&&Math.abs(other-n.eff.p)>0.004?" dual":""}">${nf3(n.eff.p)}${other!=null&&Math.abs(other-n.eff.p)>0.004?`<span class="sep">–</span><span class="gval">${nf3(other)}</span>`:""}</div>
         <div class="net" title="${esc(subst(t("nettip"),{f:money(n.fill),d:money(n.detour)}))}">${esc(t("netword"))} ${money(n.net)}${gv&&Math.abs(gv.v-s.prices[fuel])>0.004?` <span class="gsrc">(ANWB–Google)</span>`:""}</div>
         <a class="go" data-g="${s.id}" role="button" tabindex="0">${esc(gv?t("gverify").replace("✓","↻"):t("gverify"))}</a>
         <a class="go" target="_blank" rel="noopener" href="${gmaps(s)}">${esc(t("maplink"))}</a></div></div>`;}).join("");
