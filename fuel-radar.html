@@ -205,7 +205,7 @@ en:{
  ios:"On iPhone: share this page in Safari → “Add to Home Screen” to install the app.",
  android:"On Android: tap ⋮ in Chrome → “Install app” to install it on your home screen.",
  cheapest_tag:"★ cheapest",perfill:"extra in total (incl. detour)",savtip:"Extra vs the cheapest station, counting the fill AND the fuel to drive there and back.",
-gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (30) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
+gverify:"Google ✓",gwork:"checking price on Google…",gnoprice:"no Google price listed for this station",gfail:"Google check failed (quota, referrer or network)",gday:"daily check limit reached (30) — try again tomorrow",gdone:"✓ Google price loaded — see the station row",aauto:"Auto-checking Google prices…",adone:"✓ auto-check done: {n} prices compared ({m} differ)",anone:"auto-check: no Google prices available in this area",roaddone:"✓ road distances updated via OSRM routing — net costs now use real km",
 desk:"Installable on iPhone (Safari → Share → Add to Home Screen) and Android (Chrome → ⋮ → Install app)."
 },
 fr:{
@@ -235,7 +235,7 @@ fr:{
  ios:"Sur iPhone : partagez cette page dans Safari → « Sur l'écran d'accueil » pour installer l'app.",
  android:"Sur Android : menu ⋮ dans Chrome → « Installer l'application ».",
  cheapest_tag:"★ le moins cher",perfill:"en plus au total (détour inclus)",savtip:"Surcoût vs la station la moins chère, plein ET trajet compris.",
-gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (30) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
+gverify:"Google ✓",gwork:"vérification du prix sur Google…",gnoprice:"pas de prix Google pour cette station",gfail:"vérification Google échouée (quota, référent ou réseau)",gday:"limite quotidienne atteinte (30) — réessayez demain",gdone:"✓ prix Google chargé — voyez la ligne de la station",aauto:"Vérification automatique des prix Google…",adone:"✓ vérification terminée : {n} prix comparés ({m} différents)",anone:"vérification auto : pas de prix Google dans cette zone",roaddone:"✓ distances routières mises à jour via OSRM — les coûts nets utilisent les vrais km",
 desk:"Installable sur iPhone (Safari → Partager → Sur l'écran d'accueil) et Android (Chrome → ⋮ → Installer l'application)."
 },
 nl:{
@@ -265,7 +265,7 @@ nl:{
  ios:"Op iPhone: deel deze pagina in Safari → “Zet op beginscherm” om de app te installeren.",
  android:"Op Android: menu ⋮ in Chrome → “App installeren” om het op je beginscherm te zetten.",
  cheapest_tag:"★ goedkoopste",perfill:"extra in totaal (incl. omrij)",savtip:"Extra vs het goedkoopste station, tankbeurt EN rit erheen meegerekend.",
-gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (30) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
+gverify:"Google ✓",gwork:"prijs controleren op Google…",gnoprice:"geen Google-prijs voor dit station",gfail:"Google-controle mislukt (quotum, referer of netwerk)",gday:"dagelijkse limiet bereikt (30) — probeer morgen opnieuw",gdone:"✓ Google-prijs geladen — zie de rij van het station",aauto:"Google-prijzen automatisch controleren…",adone:"✓ controle klaar: {n} prijzen vergeleken ({m} verschillend)",anone:"autocontrole: geen Google-prijzen in deze zone",roaddone:"✓ wegafstanden bijgewerkt via OSRM-routing — nettokosten gebruiken echte km",
 desk:"Installeerbaar op iPhone (Safari → Delen → Zet op beginscherm) en Android (Chrome → ⋮ → App installeren)."
 }};
 let lang=(()=>{const s=localStorage.getItem("fuelradar.lang");if(s&&T[s])return s;
@@ -358,7 +358,7 @@ async function fetchRoad(){
     if(j.code!=="Ok"||!j.distances)throw new Error("osrm "+j.code);
     cand.forEach((st,i)=>{const m=j.distances[0][i+1];if(m!=null)st.roadd=m/1000;});
     localStorage.setItem("fuelradar.cache",JSON.stringify({ts:Date.now(),center,stations}));
-    setStatus(t("roaddone"),"ok");render();
+    setStatus(t("roaddone"),"ok");render();autoCheck();
   }catch(e){/* keep 1.3 x estimates */}
 }
 
@@ -385,28 +385,102 @@ function gQuota(){
 async function gVerify(s){
   const c=gQuota();
   if(c.n>=30){setStatus(t("gday"),"err");return;}
-  const gt=GTYPES[fuel];
-  if(!gt)return;
+  const want=GTYPES[fuel];
+  if(!want)return;
+  const parts=(s.addr||"").split(",").map(x=>x.trim()).filter(Boolean);
+  const city=parts.length?parts[parts.length-1]:"";
+  const street=parts.length?parts[0]:s.name;
+  const streetNN=street.replace(/\s*\d+\s*[a-zA-Z]?\/?\s*$/,"").trim()||street;
+  const queries=[s.name+" "+city, s.name+" "+streetNN+" "+city];
   c.n++;localStorage.setItem("fuelradar.gcq",JSON.stringify(c));
   setStatus('<span class="spin"></span>'+esc(t("gwork")));
   try{
-    const sr=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",
-      headers:{"Content-Type":"application/json","X-Goog-Api-Key":GKEY,
-        "X-Goog-FieldMask":"places.id"},
-      body:JSON.stringify({textQuery:s.name+" "+(s.addr||""),"languageCode":"fr"})});
-    const sj=await sr.json();
-    const pid=sj.places&&sj.places[0]&&sj.places[0].id;
-    if(!pid)throw new Error("no place");
-    const pr=await fetch("https://places.googleapis.com/v1/places/"+pid,
-      {headers:{"X-Goog-Api-Key":GKEY,"X-Goog-FieldMask":"id,fuelOptions"}});
-    const pj=await pr.json();
-    const hit=(((pj.fuelOptions||{}).fuelPrices)||[]).find(f=>f.type===gt);
+    const is95=want.indexOf("95")>=0,is98=want.indexOf("98")>=0;
+    function score(type){
+      const u=(type||"").toUpperCase();
+      if(u===want)return 3;
+      if(is95&&u.indexOf("95")>=0)return 2;
+      if(is98&&u.indexOf("98")>=0)return 2;
+      if(want==="DIESEL")return u==="DIESEL"?3:(u.indexOf("DIESEL")>=0?1:0);
+      if(want==="AUTOGAS")return (u==="LPG"||u==="AUTOGAS")?2:0;
+      if(want==="CNG")return (u.indexOf("CNG")>=0||u.indexOf("GNC")>=0)?2:0;
+      return 0;
+    }
+    let hit=null,src=null;
+    for(const q of queries){
+      const sr=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",
+        headers:{"Content-Type":"application/json","X-Goog-Api-Key":GKEY,
+          "X-Goog-FieldMask":"places.id,places.displayName,places.fuelOptions"},
+        body:JSON.stringify({textQuery:q,"languageCode":"fr"})});
+      const sj=await sr.json();
+      for(const p of (sj.places||[]).slice(0,3)){
+        for(const f of ((p.fuelOptions||{}).fuelPrices||[])){
+          const sc=score(f.type);
+          if(sc>(hit?hit._sc:0)){hit=Object.assign({},f,{_sc:sc});src=p;}
+        }
+      }
+      if(hit&&hit._sc>=2)break;
+    }
     if(!hit){setStatus(t("gnoprice"),"err");return;}
     const val=(+hit.price.units||0)+(+hit.price.nanos||0)/1e9;
-    gcheck[s.id]={v:val,ts:hit.updateTime,f:fuel,d:new Date().toISOString().slice(0,10)};
+    gcheck[s.id]={v:val,ts:hit.updateTime,f:fuel,d:new Date().toISOString().slice(0,10),
+      gname:src.displayName.text};
     localStorage.setItem("fuelradar.gchk",JSON.stringify(gcheck));
     setStatus(t("gdone"),"ok");render();
   }catch(e){setStatus(t("gfail"),"err");}
+}
+/* ---------- auto Google price check ---------- */
+async function autoCheck(){
+  const today=new Date().toISOString().slice(0,10);
+  const cands=stations.filter(s=>s.prices[fuel]!=null&&(!brand||s.name.toUpperCase()===brand))
+    .sort((a,b)=>a.dist-b.dist).slice(0,40)
+    .filter(s=>!(gcheck[s.id]&&gcheck[s.id].d===today&&gcheck[s.id].f===fuel));
+  if(!cands.length){render();return;}
+  const c=gQuota();
+  if(c.n+cands.length>30)cands.length=Math.max(0,30-c.n);
+  if(!cands.length){render();return;}
+  c.n+=cands.length;localStorage.setItem("fuelradar.gcq",JSON.stringify(c));
+  setStatus('<span class="spin"></span>'+esc(t("aauto")));
+  const want=GTYPES[fuel];
+  const is95=want.indexOf("95")>=0,is98=want.indexOf("98")>=0;
+  function score(type){
+    const u=(type||"").toUpperCase();
+    if(u===want)return 3;
+    if(is95&&u.indexOf("95")>=0)return 2;
+    if(is98&&u.indexOf("98")>=0)return 2;
+    if(want==="DIESEL")return u==="DIESEL"?3:(u.indexOf("DIESEL")>=0?1:0);
+    if(want==="AUTOGAS")return (u==="LPG"||u==="AUTOGAS")?2:0;
+    if(want==="CNG")return (u.indexOf("CNG")>=0||u.indexOf("GNC")>=0)?2:0;
+    return 0;
+  }
+  let found=0,diff=0;
+  for(const s of cands){
+    const parts=(s.addr||"").split(",").map(x=>x.trim()).filter(Boolean);
+    const city=parts.length?parts[parts.length-1]:"";
+    let hit=null,src=null;
+    try{
+      const r=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",
+        headers:{"Content-Type":"application/json","X-Goog-Api-Key":GKEY,
+          "X-Goog-FieldMask":"places.id,places.displayName,places.fuelOptions"},
+        body:JSON.stringify({textQuery:s.name+" "+city,"languageCode":"fr"})});
+      const j=await r.json();
+      for(const p of (j.places||[]).slice(0,2)){
+        for(const f of ((p.fuelOptions||{}).fuelPrices||[])){
+          const sc=score(f.type);
+          if(sc>(hit?hit._sc:0)){hit=Object.assign({},f,{_sc:sc});src=p;}
+        }
+      }
+    }catch(e){}
+    if(hit&&hit._sc>=2){
+      found++;
+      const val=(+hit.price.units||0)+(+hit.price.nanos||0)/1e9;
+      if(Math.abs(val-s.prices[fuel])>0.004)diff++;
+      gcheck[s.id]={v:val,ts:hit.updateTime,f:fuel,d:today,gname:src.displayName.text};
+    }
+  }
+  localStorage.setItem("fuelradar.gchk",JSON.stringify(gcheck));
+  setStatus(found?subst(t("adone"),{n:found,m:diff}):t("anone"),found?"ok":"");
+  render();
 }
 /* ---------- render ---------- */
 function colorize(vals,p){const lo=Math.min(...vals),hi=Math.max(...vals);
